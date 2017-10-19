@@ -47,6 +47,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.wdullaer.materialdatetimepicker.HapticFeedbackController;
+import com.wdullaer.materialdatetimepicker.MaterialDateTimePickerConfig;
 import com.wdullaer.materialdatetimepicker.R;
 import com.wdullaer.materialdatetimepicker.TypefaceHelper;
 import com.wdullaer.materialdatetimepicker.Utils;
@@ -64,6 +65,17 @@ import java.util.Locale;
 public class TimePickerDialog extends DialogFragment implements
         OnValueSelectedListener, TimePickerController {
     private static final String TAG = "TimePickerDialog";
+    private static Locale forcedLocale;
+
+    static {
+        if (MaterialDateTimePickerConfig.getForcedLocale()!=null) {
+            forcedLocale = MaterialDateTimePickerConfig.getForcedLocale();
+        }
+    }
+
+    public static void setForcedLocale(Locale forcedLocale) {
+        TimePickerDialog.forcedLocale = forcedLocale;
+    }
 
     public enum Version {
         VERSION_1,
@@ -948,7 +960,7 @@ public class TimePickerDialog extends DialogFragment implements
         TextView timePickerHeader = view.findViewById(R.id.mdtp_time_picker_header);
         if (!mTitle.isEmpty()) {
             timePickerHeader.setVisibility(TextView.VISIBLE);
-            timePickerHeader.setText(mTitle.toUpperCase(Locale.getDefault()));
+            timePickerHeader.setText(mTitle.toUpperCase(Utils.useLocaleOrDefault(forcedLocale)));
         }
 
         // Set the theme at the end so that the initialize()s above don't counteract the theme.
@@ -1182,7 +1194,7 @@ public class TimePickerDialog extends DialogFragment implements
         if (value == 60) {
             value = 0;
         }
-        CharSequence text = String.format(Locale.getDefault(), "%02d", value);
+        CharSequence text = String.format(Utils.useLocaleOrDefault(forcedLocale), "%02d", value);
         Utils.tryAccessibilityAnnounce(mTimePicker, text);
         mMinuteView.setText(text);
         mMinuteSpaceView.setText(text);
@@ -1192,7 +1204,7 @@ public class TimePickerDialog extends DialogFragment implements
         if(value == 60) {
             value = 0;
         }
-        CharSequence text = String.format(Locale.getDefault(), "%02d", value);
+        CharSequence text = String.format(Utils.useLocaleOrDefault(forcedLocale), "%02d", value);
         Utils.tryAccessibilityAnnounce(mTimePicker, text);
         mSecondView.setText(text);
         mSecondSpaceView.setText(text);
@@ -1353,7 +1365,7 @@ public class TimePickerDialog extends DialogFragment implements
         }
 
         int val = getValFromKeyCode(keyCode);
-        Utils.tryAccessibilityAnnounce(mTimePicker, String.format(Locale.getDefault(), "%d", val));
+        Utils.tryAccessibilityAnnounce(mTimePicker, String.format(Utils.useLocaleOrDefault(forcedLocale), "%d", val));
         // Automatically fill in 0's if AM or PM was legally entered.
         if (isTypedTimeFullyLegal()) {
             if (!mIs24HourMode && mTypedTimes.size() <= (textSize - 1)) {
@@ -1578,8 +1590,8 @@ public class TimePickerDialog extends DialogFragment implements
             char amChar;
             char pmChar;
             for (int i = 0; i < Math.max(mAmText.length(), mPmText.length()); i++) {
-                amChar = mAmText.toLowerCase(Locale.getDefault()).charAt(i);
-                pmChar = mPmText.toLowerCase(Locale.getDefault()).charAt(i);
+                amChar = mAmText.toLowerCase(Utils.useLocaleOrDefault(forcedLocale)).charAt(i);
+                pmChar = mPmText.toLowerCase(Utils.useLocaleOrDefault(forcedLocale)).charAt(i);
                 if (amChar != pmChar) {
                     KeyEvent[] events = kcm.getEvents(new char[]{amChar, pmChar});
                     // There should be 4 events: a down and up for both AM and PM.

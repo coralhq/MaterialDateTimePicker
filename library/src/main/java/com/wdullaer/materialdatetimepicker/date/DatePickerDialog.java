@@ -45,6 +45,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.wdullaer.materialdatetimepicker.HapticFeedbackController;
+import com.wdullaer.materialdatetimepicker.MaterialDateTimePickerConfig;
 import com.wdullaer.materialdatetimepicker.R;
 import com.wdullaer.materialdatetimepicker.TypefaceHelper;
 import com.wdullaer.materialdatetimepicker.Utils;
@@ -63,6 +64,12 @@ public class DatePickerDialog extends DialogFragment implements
         OnClickListener, DatePickerController {
 
     private static Locale forcedLocale;
+
+    static {
+        if (MaterialDateTimePickerConfig.getForcedLocale()!=null) {
+            forcedLocale = MaterialDateTimePickerConfig.getForcedLocale();
+        }
+    }
 
     public static void setForcedLocale(Locale forcedLocale) {
         DatePickerDialog.forcedLocale = forcedLocale;
@@ -106,9 +113,9 @@ public class DatePickerDialog extends DialogFragment implements
     private static final int ANIMATION_DURATION = 300;
     private static final int ANIMATION_DELAY = 500;
 
-    private static SimpleDateFormat YEAR_FORMAT = new SimpleDateFormat("yyyy", forcedLocale!=null? forcedLocale : Locale.getDefault());
-    private static SimpleDateFormat MONTH_FORMAT = new SimpleDateFormat("MMM", forcedLocale!=null? forcedLocale : Locale.getDefault());
-    private static SimpleDateFormat DAY_FORMAT = new SimpleDateFormat("dd", forcedLocale!=null? forcedLocale : Locale.getDefault());
+    private static SimpleDateFormat YEAR_FORMAT = new SimpleDateFormat("yyyy", Utils.useLocaleOrDefault(forcedLocale));
+    private static SimpleDateFormat MONTH_FORMAT = new SimpleDateFormat("MMM", Utils.useLocaleOrDefault(forcedLocale));
+    private static SimpleDateFormat DAY_FORMAT = new SimpleDateFormat("dd", Utils.useLocaleOrDefault(forcedLocale));
     private static SimpleDateFormat VERSION_2_FORMAT;
 
     private Calendar mCalendar = Utils.trimToMidnight(Calendar.getInstance(getTimeZone()));
@@ -229,10 +236,12 @@ public class DatePickerDialog extends DialogFragment implements
             mCalendar.set(Calendar.DAY_OF_MONTH, savedInstanceState.getInt(KEY_SELECTED_DAY));
             mDefaultView = savedInstanceState.getInt(KEY_DEFAULT_VIEW);
         }
+        Locale locale = Utils.useLocaleOrDefault(forcedLocale);
+
         if (Build.VERSION.SDK_INT < 18) {
-            VERSION_2_FORMAT = new SimpleDateFormat(activity.getResources().getString(R.string.mdtp_date_v2_daymonthyear), forcedLocale!=null? forcedLocale : Locale.getDefault());
+            VERSION_2_FORMAT = new SimpleDateFormat(activity.getResources().getString(R.string.mdtp_date_v2_daymonthyear), locale);
         } else {
-            VERSION_2_FORMAT = new SimpleDateFormat(DateFormat.getBestDateTimePattern(forcedLocale!=null? forcedLocale : Locale.getDefault(), "EEEMMMdd"), forcedLocale!=null? forcedLocale : Locale.getDefault());
+            VERSION_2_FORMAT = new SimpleDateFormat(DateFormat.getBestDateTimePattern(locale, "EEEMMMdd"), locale);
         }
         VERSION_2_FORMAT.setTimeZone(getTimeZone());
     }
@@ -539,10 +548,10 @@ public class DatePickerDialog extends DialogFragment implements
         if (mVersion == Version.VERSION_1) {
             if (mDatePickerHeaderView != null) {
                 if (mTitle != null)
-                    mDatePickerHeaderView.setText(mTitle.toUpperCase(forcedLocale!=null? forcedLocale : Locale.getDefault()));
+                    mDatePickerHeaderView.setText(mTitle.toUpperCase(Utils.useLocaleOrDefault(forcedLocale)));
                 else {
                     mDatePickerHeaderView.setText(mCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG,
-                            forcedLocale!=null? forcedLocale : Locale.getDefault()).toUpperCase(forcedLocale!=null? forcedLocale : Locale.getDefault()));
+                            Utils.useLocaleOrDefault(forcedLocale)).toUpperCase(Utils.useLocaleOrDefault(forcedLocale)));
                 }
             }
             mSelectedMonthTextView.setText(MONTH_FORMAT.format(mCalendar.getTime()));
@@ -552,7 +561,7 @@ public class DatePickerDialog extends DialogFragment implements
         if (mVersion == Version.VERSION_2) {
             mSelectedDayTextView.setText(VERSION_2_FORMAT.format(mCalendar.getTime()));
             if (mTitle != null)
-                mDatePickerHeaderView.setText(mTitle.toUpperCase(forcedLocale!=null? forcedLocale : Locale.getDefault()));
+                mDatePickerHeaderView.setText(mTitle.toUpperCase(Utils.useLocaleOrDefault(forcedLocale)));
             else
                 mDatePickerHeaderView.setVisibility(View.GONE);
         }

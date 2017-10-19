@@ -1,0 +1,51 @@
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
+
+task sourceJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier "source"
+}
+
+publishing {
+    publications {
+        materialPicker(MavenPublication) {
+            groupId GROUP
+            artifactId POM_ARTIFACT_ID
+            version VERSION_NAME
+            description POM_DESCRIPTION
+            artifact(sourceJar)
+            artifact("$buildDir/outputs/aar/library-release.aar")
+
+            //The publication doesn't know about our dependencies, so we have to manually add them to the pom
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode('dependencies')
+
+                //Iterate over the compile dependencies (we don't want the test ones), adding a <dependency> node for each
+                configurations.compile.allDependencies.each {
+                    def dependencyNode = dependenciesNode.appendNode('dependency')
+                    dependencyNode.appendNode('groupId', it.group)
+                    dependencyNode.appendNode('artifactId', it.name)
+                    dependencyNode.appendNode('version', it.version)
+                }
+            }
+        }
+    }
+}
+
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+    configurations = ['archives']
+    pkg {
+        repo = 'android-library'
+        name = 'material-picker'
+        userOrg = 'prism'
+        licenses = ['Apache-2.0']
+        vcsUrl = POM_VCS
+        desc = POM_DESCRIPTION
+        websiteUrl = POM_URL
+        publish = true
+        publicDownloadNumbers = true
+    }
+    publications = ['materialPicker']
+}

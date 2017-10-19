@@ -31,6 +31,7 @@ import android.util.TypedValue;
 import android.view.View;
 
 import java.util.Calendar;
+import java.util.Locale;
 
 /**
  * Utility helper functions for time and date pickers.
@@ -159,5 +160,9 @@ public class Utils {
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         return calendar;
+    }
+
+    public static Locale useLocaleOrDefault(Locale locale) {
+        return locale!=null? locale : Locale.getDefault();
     }
 }

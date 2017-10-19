@@ -38,7 +38,9 @@ import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import com.wdullaer.materialdatetimepicker.MaterialDateTimePickerConfig;
 import com.wdullaer.materialdatetimepicker.R;
+import com.wdullaer.materialdatetimepicker.Utils;
 import com.wdullaer.materialdatetimepicker.date.MonthAdapter.CalendarDay;
 
 import java.security.InvalidParameterException;
@@ -53,6 +55,13 @@ import java.util.Locale;
  */
 public abstract class MonthView extends View {
     private static Locale forcedLocale;
+
+    static {
+        if (MaterialDateTimePickerConfig.getForcedLocale()!=null) {
+            forcedLocale = MaterialDateTimePickerConfig.getForcedLocale();
+        }
+    }
+
     protected static int DEFAULT_HEIGHT = 32;
     protected static int MIN_HEIGHT = 10;
     protected static final int DEFAULT_SELECTED_DAY = -1;
@@ -393,7 +402,7 @@ public abstract class MonthView extends View {
 
     @NonNull
     private String getMonthAndYearString() {
-        Locale locale = forcedLocale!=null ? forcedLocale : Locale.getDefault();
+        Locale locale = Utils.useLocaleOrDefault(forcedLocale);
         String pattern = "MMMM yyyy";
 
         if (Build.VERSION.SDK_INT < 18) pattern = getContext().getResources().getString(R.string.mdtp_date_v1_monthyear);
@@ -556,7 +565,7 @@ public abstract class MonthView extends View {
      * @return The weekday label
      */
     private String getWeekDayLabel(Calendar day) {
-        Locale locale = forcedLocale != null ? forcedLocale : Locale.getDefault();
+        Locale locale = Utils.useLocaleOrDefault(forcedLocale);
 
         // Localised short version of the string is not available on API < 18
         if (Build.VERSION.SDK_INT < 18) {

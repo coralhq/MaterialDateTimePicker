@@ -38,7 +38,9 @@ import android.view.accessibility.AccessibilityManager;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.FrameLayout;
 
+import com.wdullaer.materialdatetimepicker.MaterialDateTimePickerConfig;
 import com.wdullaer.materialdatetimepicker.R;
+import com.wdullaer.materialdatetimepicker.Utils;
 
 import java.util.Calendar;
 import java.util.Locale;
@@ -50,6 +52,14 @@ import java.util.Locale;
  */
 public class RadialPickerLayout extends FrameLayout implements OnTouchListener {
     private static final String TAG = "RadialPickerLayout";
+
+    private static Locale forcedLocale;
+
+    static {
+        if (MaterialDateTimePickerConfig.getForcedLocale()!=null) {
+            forcedLocale = MaterialDateTimePickerConfig.getForcedLocale();
+        }
+    }
 
     private final int TOUCH_SLOP;
     private final int TAP_TIMEOUT;
@@ -95,6 +105,10 @@ public class RadialPickerLayout extends FrameLayout implements OnTouchListener {
 
     private AnimatorSet mTransition;
     private Handler mHandler = new Handler();
+
+    public static void setForcedLocale(Locale forcedLocale) {
+        RadialPickerLayout.forcedLocale = forcedLocale;
+    }
 
     public interface OnValueSelectedListener {
         void onValueSelected(Timepoint newTime);
@@ -214,10 +228,10 @@ public class RadialPickerLayout extends FrameLayout implements OnTouchListener {
         String[] secondsTexts = new String[12];
         for (int i = 0; i < 12; i++) {
             hoursTexts[i] = is24HourMode?
-                    String.format(Locale.getDefault(), "%02d", hours_24[i]) : String.format(Locale.getDefault(), "%d", hours[i]);
-            innerHoursTexts[i] = String.format(Locale.getDefault(), "%d", hours[i]);
-            minutesTexts[i] = String.format(Locale.getDefault(), "%02d", minutes[i]);
-            secondsTexts[i] = String.format(Locale.getDefault(), "%02d", seconds[i]);
+                    String.format(Utils.useLocaleOrDefault(forcedLocale), "%02d", hours_24[i]) : String.format(Utils.useLocaleOrDefault(forcedLocale), "%d", hours[i]);
+            innerHoursTexts[i] = String.format(Utils.useLocaleOrDefault(forcedLocale), "%d", hours[i]);
+            minutesTexts[i] = String.format(Utils.useLocaleOrDefault(forcedLocale), "%02d", minutes[i]);
+            secondsTexts[i] = String.format(Utils.useLocaleOrDefault(forcedLocale), "%02d", seconds[i]);
         }
         mHourRadialTextsView.initialize(context,
                 hoursTexts, (is24HourMode ? innerHoursTexts : null), mController, hourValidator, true);

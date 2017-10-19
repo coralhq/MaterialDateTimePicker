@@ -32,6 +32,7 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import com.wdullaer.materialdatetimepicker.GravitySnapHelper;
+import com.wdullaer.materialdatetimepicker.MaterialDateTimePickerConfig;
 import com.wdullaer.materialdatetimepicker.Utils;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog.OnDateChangedListener;
 
@@ -43,8 +44,14 @@ import java.util.Locale;
  * This displays a list of months in a calendar format with selectable days.
  */
 public abstract class DayPickerView extends RecyclerView implements OnDateChangedListener {
-
     private static Locale forcedLocale;
+
+    static {
+        if (MaterialDateTimePickerConfig.getForcedLocale()!=null) {
+            forcedLocale = MaterialDateTimePickerConfig.getForcedLocale();
+        }
+    }
+
     private static final String TAG = "MonthFragment";
 
     // Affects when the month selection will change while scrolling up
@@ -56,7 +63,7 @@ public abstract class DayPickerView extends RecyclerView implements OnDateChange
     protected int mNumWeeks = 6;
     protected boolean mShowWeekNumber = false;
     protected int mDaysPerWeek = 7;
-    private static SimpleDateFormat YEAR_FORMAT = new SimpleDateFormat("yyyy", forcedLocale!=null? forcedLocale : Locale.getDefault());
+    private static SimpleDateFormat YEAR_FORMAT = new SimpleDateFormat("yyyy", Utils.useLocaleOrDefault(forcedLocale));
 
     protected Context mContext;
     protected Handler mHandler;
@@ -345,7 +352,7 @@ public abstract class DayPickerView extends RecyclerView implements OnDateChange
 
         String sbuf = "";
 
-        sbuf += cal.getDisplayName(Calendar.MONTH, Calendar.LONG, forcedLocale!=null? forcedLocale : Locale.getDefault());
+        sbuf += cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Utils.useLocaleOrDefault(forcedLocale));
         sbuf += " ";
         sbuf += YEAR_FORMAT.format(cal.getTime());
         return sbuf;
