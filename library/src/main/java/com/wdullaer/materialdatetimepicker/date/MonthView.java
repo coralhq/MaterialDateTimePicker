@@ -52,7 +52,7 @@ import java.util.Locale;
  * within the specified month.
  */
 public abstract class MonthView extends View {
-
+    private static Locale forcedLocale;
     protected static int DEFAULT_HEIGHT = 32;
     protected static int MIN_HEIGHT = 10;
     protected static final int DEFAULT_SELECTED_DAY = -1;
@@ -389,7 +389,7 @@ public abstract class MonthView extends View {
 
     @NonNull
     private String getMonthAndYearString() {
-        Locale locale = Locale.getDefault();
+        Locale locale = forcedLocale!=null ? forcedLocale : Locale.getDefault();
         String pattern = "MMMM yyyy";
 
         if (Build.VERSION.SDK_INT < 18) pattern = getContext().getResources().getString(R.string.mdtp_date_v1_monthyear);
@@ -552,7 +552,7 @@ public abstract class MonthView extends View {
      * @return The weekday label
      */
     private String getWeekDayLabel(Calendar day) {
-        Locale locale = Locale.getDefault();
+        Locale locale = forcedLocale != null ? forcedLocale : Locale.getDefault();
 
         // Localised short version of the string is not available on API < 18
         if (Build.VERSION.SDK_INT < 18) {

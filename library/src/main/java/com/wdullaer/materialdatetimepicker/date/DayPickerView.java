@@ -44,6 +44,7 @@ import java.util.Locale;
  */
 public abstract class DayPickerView extends RecyclerView implements OnDateChangedListener {
 
+    private static Locale forcedLocale;
     private static final String TAG = "MonthFragment";
 
     // Affects when the month selection will change while scrolling up
@@ -55,7 +56,7 @@ public abstract class DayPickerView extends RecyclerView implements OnDateChange
     protected int mNumWeeks = 6;
     protected boolean mShowWeekNumber = false;
     protected int mDaysPerWeek = 7;
-    private static SimpleDateFormat YEAR_FORMAT = new SimpleDateFormat("yyyy", Locale.getDefault());
+    private static SimpleDateFormat YEAR_FORMAT = new SimpleDateFormat("yyyy", forcedLocale!=null? forcedLocale : Locale.getDefault());
 
     protected Context mContext;
     protected Handler mHandler;
@@ -89,6 +90,10 @@ public abstract class DayPickerView extends RecyclerView implements OnDateChange
         super(context);
         init(context);
         setController(controller);
+    }
+
+    public static void setForcedLocale(Locale forcedLocale) {
+        DayPickerView.forcedLocale = forcedLocale;
     }
 
     public void setController(DatePickerController controller) {
@@ -339,7 +344,8 @@ public abstract class DayPickerView extends RecyclerView implements OnDateChange
         cal.set(day.year, day.month, day.day);
 
         String sbuf = "";
-        sbuf += cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+
+        sbuf += cal.getDisplayName(Calendar.MONTH, Calendar.LONG, forcedLocale!=null? forcedLocale : Locale.getDefault());
         sbuf += " ";
         sbuf += YEAR_FORMAT.format(cal.getTime());
         return sbuf;
