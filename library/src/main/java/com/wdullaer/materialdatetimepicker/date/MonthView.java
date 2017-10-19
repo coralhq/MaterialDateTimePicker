@@ -202,6 +202,10 @@ public abstract class MonthView extends View {
         initView();
     }
 
+    public static void setForcedLocale(Locale forcedLocale) {
+        MonthView.forcedLocale = forcedLocale;
+    }
+
     public void setDatePickerController(DatePickerController controller) {
         mController = controller;
     }
